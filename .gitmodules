@@ -1,0 +1,6 @@
+[submodule "src/lib/whisper_streaming"]
+	path = src/lib/whisper_streaming
+	url = https://github.com/rodrigoGA/whisper_streaming.git
+[submodule "src/lib/karlo"]
+	path = src/lib/karlo
+	url = https://github.com/kakaobrain/karlo.git
