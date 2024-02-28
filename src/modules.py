@@ -2,13 +2,13 @@
 import requests
 import json
 
-class karlo:
+class Karlo:
     
     def __init__(self, REST_API_KEY):
         self.REST_API_KEY = REST_API_KEY
     
     # 이미지 생성
-    def text2image(self, prompt:str, negative_prompt:str, width:int, height:int, image_format:str, samples:int) -> json:
+    def text2image(self, prompt:str, negative_prompt:str, width:int=512, height:int=512, image_format:str="png", samples:int=1) -> json:
         r = requests.post(
             'https://api.kakaobrain.com/v2/inference/karlo/t2i',
             json = {
