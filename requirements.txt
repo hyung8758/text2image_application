@@ -9,4 +9,7 @@ diffusers
 transformers
 accelerate
 safetensors
+torchserve
+torch-model-archiver
+torch-workflow-archiver
 git+https://github.com/openai/CLIP.git

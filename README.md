@@ -10,4 +10,6 @@ studying of application about generating images based on a given text
     - fatser_whipser
 - Image generator
     - Karlo (kakaobrain)
+    - koala (Etri)
 
+- triton server
