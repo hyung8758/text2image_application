@@ -1,3 +1,4 @@
+numpy>=1.19.1
 torch>=1.10
 torchvision>=0.8.2
 black
@@ -9,7 +10,6 @@ diffusers
 transformers
 accelerate
 safetensors
-torchserve
-torch-model-archiver
-torch-workflow-archiver
+fsspec
+tritonclient[all]
 git+https://github.com/openai/CLIP.git
