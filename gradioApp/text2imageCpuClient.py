@@ -69,8 +69,7 @@ def generate(prompt):
     output_img = grpcclient.InferRequestedOutput("generated_image")
 
     response = client.infer(
-        model_name="pipeline", inputs=[input_text], outputs=[output_img], 
-        parameters=dict(iter=args.iter)
+        model_name="pipeline", inputs=[input_text], outputs=[output_img]
     )
     resp_img = response.as_numpy("generated_image")
     print(resp_img.shape)
@@ -80,7 +79,7 @@ def generate(prompt):
 with gr.Blocks() as app:
     prompt = gr.Textbox(label="Prompt")
     submit_btn = gr.Button("Generate")
-    img_output = gr.Image(height=1024)# .style(height=512)
+    img_output = gr.Image(height=1024)
     submit_btn.click(fn=generate, inputs=prompt, outputs=img_output)
 
 app.launch(server_name="0.0.0.0")

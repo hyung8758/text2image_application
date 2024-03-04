@@ -45,6 +45,7 @@ def print_tensor_info(model):
 
 class TritonPythonModel:
     def initialize(self, args):
+        print("in init args: {}".format(args))
         self.output_dtype = pb_utils.triton_string_to_numpy(
             pb_utils.get_output_config_by_name(
                 json.loads(args["model_config"]), "generated_image"
@@ -69,6 +70,17 @@ class TritonPythonModel:
     def execute(self, requests):
         responses = []
         for request in requests:
+            # # parameters
+            # params = pb_utils.InferenceRequest(
+            #     model_name="pipeline",
+            # )
+            # # params = request.parameters
+            # print("Type of parameters:", type(params))
+            # print("Parameters:", params)
+            # iter = params.get("iter")
+            # print("Value of 'iter':", iter)
+            # iter = request.parameters.get("iter")
+            
             inp = pb_utils.get_input_tensor_by_name(request, "prompt")
             input_text = inp.as_numpy()[0][0].decode()
             # tokenizing
@@ -119,8 +131,9 @@ class TritonPythonModel:
                 (text_embeddings.shape[0] // 2, self.unet.in_channels, 64, 64)
             # ).to("cuda")
             ).to("cpu")
-            iter = request.parameters.get("iter")
-            print("current iter: {}".format(iter))
+            
+            # print("current iter: {}".format(iter))
+            iter = 30
             self.scheduler.set_timesteps(iter) # 50
             latents = latents * self.scheduler.sigmas[0]
 
