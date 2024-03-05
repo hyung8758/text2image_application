@@ -51,7 +51,7 @@ Integration of text-to-image, speech recognition, and translation models.
 
 ### List of Models
 - ASR
-    - fatser_whipser
+    - faster_whipser
 - text-to-image
     - Karlo (kakaobrain)
     - koala (Etri)
