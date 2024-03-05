@@ -67,7 +67,6 @@ def generate(prompt):
     input_text.set_data_from_numpy(text_obj)
 
     output_img = grpcclient.InferRequestedOutput("generated_image")
-
     response = client.infer(
         model_name="pipeline", inputs=[input_text], outputs=[output_img], 
         parameters=dict(iter=args.iter)
