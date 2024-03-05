@@ -1,5 +1,6 @@
 # text2image_application
-Integration of text-to-image, speech recognition, and translation models.
+- Integration of text-to-image, speech recognition, and translation models.
+- Mostly referenced from [triton server tutorial](https://github.com/triton-inference-server/tutorials/tree/main/Conceptual_Guide/Part_6-building_complex_pipelines).
 
 
 ### Information
@@ -15,17 +16,7 @@ Integration of text-to-image, speech recognition, and translation models.
 ### Usage 
 - install dependencies
     ```bash
-    pip install -r requirements.txt
-    ```
-- gradio demo
-    - ./gradioApp/text2imageCpuClient.py: 
-        - [input] text -> [output] image
-        - This is a CPU-based version of the Triton Server for text-to-image processing, which may result in slower performance.
-        ```bash
-        # Ensure that your current directory is 'text2image_application/' and execute the following commands.
-
-        # 1. Start the Triton Server using Docker. If you want to keep the current container, omit the '--rm' option; otherwise, the container will be automatically removed when you exit.
-        docker run -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cpu/text2image_model:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
+    pip install -r requirements.txtf1:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cpu/text2image_model:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
 
         # 2. Once the container is started, install the following libraries
         pip install torch torchvision torchaudio
