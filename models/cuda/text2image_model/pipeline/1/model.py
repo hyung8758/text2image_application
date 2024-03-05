@@ -62,7 +62,7 @@ class TritonPythonModel:
             subfolder="unet",
             revision="fp16",
             torch_dtype=torch.float32,
-            use_auth_token=True,
+            # use_auth_token=True,
         ).to("cuda")
 
     def execute(self, requests):
@@ -116,8 +116,9 @@ class TritonPythonModel:
             latents = torch.randn(
                 (text_embeddings.shape[0] // 2, self.unet.in_channels, 64, 64)
             ).to("cuda")
-            iter = request.parameters.get("iter")
-            print("current iter: {}".format(iter))
+            # iter = request.parameters.get("iter")
+            # print("current iter: {}".format(iter))
+            iter = 50
             self.scheduler.set_timesteps(iter) # 50
             latents = latents * self.scheduler.sigmas[0]
 
