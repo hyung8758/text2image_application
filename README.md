@@ -3,17 +3,17 @@
 - Mostly referenced from [triton server tutorial](https://github.com/triton-inference-server/tutorials/tree/main/Conceptual_Guide/Part_6-building_complex_pipelines).
 
 
-### Information
+## Information
 - This project does not encompass the implementation of pre- and post-processing components. Users intending to utilize this system will need to develop these components independently.
 - This project is primarily designed for Korean-speaking users to describe imagined images in Korean, generating corresponding visual outputs.
 
-### Plan
+## Plan
 - [input] (eng)text -> [output] image
 - [input] (eng)audio -> (eng)text -> [output] image
 - [input] (kor)audio -> (eng)translated text -> [output] image
     - Use either the Whisper Speech Translator or the independent Translator module.
 
-### Usage 
+## Usage 
 - install dependencies
     ```bash
     pip install -r requirements.txtf1:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cpu/text2image_model:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
@@ -77,7 +77,7 @@
 - API server
 
 
-### List of Models
+## List of Models
 - ASR
     - faster_whipser
 - text-to-image
