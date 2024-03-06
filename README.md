@@ -45,10 +45,11 @@
         pip install diffusers==0.9.0
         huggingface-cli login # login with the huggingface token.
         cd /mount
-        python export.py
+        python src/exports/export_nvidia_example.py
 
         # Accelerating VAE with TensorRT
         trtexec --onnx=vae.onnx --saveEngine=vae.plan --minShapes=latent_sample:1x4x64x64 --optShapes=latent_sample:4x4x64x64 --maxShapes=latent_sample:8x4x64x64 --fp16
+        rm vae.onnx
 
         # Place the models in the model repository
         mkdir models/cuda/text2image_model/vae/1
