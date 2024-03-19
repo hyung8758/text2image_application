@@ -12,4 +12,7 @@ accelerate
 safetensors
 fsspec
 tritonclient[all]
+fastapi
+uvicorn
+python-daemon
 git+https://github.com/openai/CLIP.git
