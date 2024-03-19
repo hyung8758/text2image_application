@@ -2,3 +2,5 @@ __pycache__/
 triton_client/
 model.onnx
 model.plan
+.pid/
+log/
