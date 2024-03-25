@@ -4,3 +4,4 @@ model.onnx
 model.plan
 .pid/
 log/
+*.png
