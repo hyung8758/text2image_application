@@ -46,7 +46,9 @@ if __name__ == "__main__":
     
     client = postRequestClient(server_addr=args.server_host, server_port=args.server_port)
     json_request = dict(
-        input_text="초록색의 개구리 한 마리가 나뭇잎 위에 앉았다."
+        input_text="초록색의 개구리 한 마리가 나뭇잎 위에 앉았다.",
+        save_image="true",
+        save_name="green_frog.png"
     )
     
     client(json_request)
