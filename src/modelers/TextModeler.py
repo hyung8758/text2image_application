@@ -23,7 +23,6 @@ class TextModeler(BaseModeler):
     def add_task_arguments(self, parser: argparse.ArgumentParser) -> None:
         group = parser.add_argument_group("Translator configuration")
         group.add_argument("--model", type=str, default="ke-t5", choices=['ke-t5'], help="model name.")
-        group.add_argument("--prompt", type=str, help="Korean sentence to translate it to English.", required=True)
         
     def run(self, prompt: str, model: str = 'ke-t5', args: argparse.Namespace = None) -> Any:
         
@@ -31,7 +30,6 @@ class TextModeler(BaseModeler):
         # set model.
         if self.tokenizer == None or self.pipe == None:
             self.load_model(model)
-        
         # translate english text to korean.
         translated = self.pipe.generate(
             **self.tokenizer(prompt, return_tensors="pt", padding=True),
@@ -41,6 +39,7 @@ class TextModeler(BaseModeler):
             no_repeat_ngram_size=self.no_repeat_ngram_size,
             num_return_sequences=self.num_return_sequences,
         )
-        output_text = self.tokenizer.decode(translated, skip_special_tokens=True)
+        # logging.info("translated token: {}".format(translated))
+        output_text = self.tokenizer.decode(translated[0], skip_special_tokens=True)
         logging.info("kor2eng Translator output text: {}".format(output_text))
         return output_text

@@ -20,11 +20,12 @@ class BaseModeler(ABC):
         self.tokenizer = None
         self.image_dict = dict()
     
-    def __call__(self, prompt : str) -> Any:
-        parser = self.get_parser()
-        args = parser.parse_args()
-        logging.info("args in modelers: {}".format(args))
-        return self.run(prompt=prompt, args=args)
+    # def __call__(self, prompt : str) -> Any:
+    #     parser = self.get_parser()
+    #     args, unknown_args = parser.parse_known_args()
+    #     logging.info("known args in modelers: {}".format(args))
+    #     logging.info("unknown args in modelers: {}".format(unknown_args))
+    #     return self.run(prompt=prompt, args=args)
         
     def get_parser(self) -> argparse.ArgumentParser: 
 
@@ -56,7 +57,7 @@ class BaseModeler(ABC):
         return self.image_dict[image_name]
 
     # download or retrieved already donwloaded pretrained model.
-    def load_model(self, model: str, use_cuda: bool = True, cuda_device: int = 1):
+    def load_model(self, model: str, use_cuda: bool = True, cuda_device: int = 0):
         logging.info("Loading {} model...".format(model))
         if model == "karlo":
             from diffusers import UnCLIPPipeline
@@ -75,8 +76,8 @@ class BaseModeler(ABC):
             raise ValueError("Unknown model name: {}".format(model))
         logging.info("Model is loaded successfully.")
         if use_cuda:
-             self.pipe = self.pipe.to('cuda:{}'.format(cuda_device))
-             logging.info("cuda device set to {}".format(cuda_device))
+            self.pipe = self.pipe.to('cuda:{}'.format(cuda_device))
+            logging.info("cuda device set to {}".format(cuda_device))
         else:
             self.pipe = self.pipe.to("cpu")
             logging.info("cpu device is set.")
