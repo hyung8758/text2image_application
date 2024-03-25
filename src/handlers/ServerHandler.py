@@ -28,18 +28,19 @@ async def post(request: Request):
     # Retrieve the handlers using dependency injection
     image_handler = request.app.state.image_handler
     text_handler = request.app.state.text_handler
-    
     json_data = await request.json()
     logging.info(json_data)
     input_text = json_data['input_text']
+    save_image = json_data['save_image']
+    save_name = json_data['save_name']
     logging.info("INPUT TEXT: {}".format(input_text))
     if text_handler:
-        input_text = text_handler(input_text)
+        input_text = text_handler.run(input_value=input_text)
         logging.info("text_handler output: {}".format(input_text))
     if image_handler:
-        output_image = image_handler(input_text)
+        output_image = image_handler.run(input_value=input_text, save_image=save_image, save_name=save_name)
     logging.info("image_handler output: {}".format(output_image))
-    response = {"message": "successul", "output": output_image}
+    response = {"message": "successul", "output": "will be implemented"}
     logging.info("done post request.")
     return response
 
@@ -57,8 +58,8 @@ def start_server() -> None:
         # task handlers.
         imageHandler = ImageHandler()
         textHandler = TextHandler()
-        imageHandler.initialize(model="karlo")
-        textHandler.initialize(model="ke-t5")
+        imageHandler.initialize(model="karlo", cuda_device=1)
+        textHandler.initialize(model="ke-t5", use_cuda=False)
         # Assign the handlers to the app's state
         app.state.image_handler = imageHandler
         app.state.text_handler = textHandler
@@ -85,3 +86,26 @@ def stop_server() -> None:
         os.kill(pid, signal.SIGTERM)
     else:
         logging.info("server is not running.")
+        
+def console() -> None:
+    # config
+    print("start console mode.")
+    if not os.path.exists(pid_path): # directory NOT exists.
+        os.makedirs(pid_path, mode=0o755)
+    with open(server_conf_path) as f:
+        server_conf = yaml.load(f, Loader=yaml.FullLoader)
+    server_host = server_conf['server_host']
+    server_port = server_conf['server_port']
+    if os.path.exists(pid_file_path):
+        print("server is already running {}:{}".format(server_host, server_port))
+    else:
+        # task handlers.
+        imageHandler = ImageHandler()
+        textHandler = TextHandler()
+        imageHandler.initialize(model="karlo", cuda_device=1)
+        textHandler.initialize(model="ke-t5", use_cuda=False)
+        # Assign the handlers to the app's state
+        app.state.image_handler = imageHandler
+        app.state.text_handler = textHandler
+        print("start server: {}:{}".format(server_host, server_port))
+        uvicorn.run(app, host=server_host, port=server_port)

@@ -13,10 +13,10 @@ class ImageHandler(MainHandler):
     def __init__(self) -> None:
         super().__init__()
         
-    def initialize(self, model: str = 'karlo',  use_cuda: bool = True, *args, **kwargs) -> None:
+    def initialize(self, model: str = 'karlo',  use_cuda: bool = True, cuda_device: int = 0, *args, **kwargs) -> None:
         super().initialize(*args, **kwargs)
         self.karloModeler = KarloModeler()
-        self.karloModeler.load_model(model, use_cuda)
+        self.karloModeler.load_model(model, use_cuda, cuda_device)
     
     def pre_processor(self, input_value: Any) -> Any:
         output_value = input_value
@@ -26,6 +26,6 @@ class ImageHandler(MainHandler):
         output_value = input_value
         return output_value
     
-    def inference(self, input_value: Any) -> Any:
-        return self.karloModeler(input_value)
+    def inference(self, input_value: Any, *args, **kwargs) -> Any:
+        return self.karloModeler.run(prompt=input_value, save_image=kwargs['save_image'], save_name=kwargs['save_name'])
         

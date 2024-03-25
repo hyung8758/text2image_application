@@ -13,9 +13,10 @@ class MainHandler(ABC):
     def __init__(self) -> None:
         pass    
     
-    def run(self, input_value: str) -> Any:
+    def run(self, input_value: str, *args, **kwargs) -> Any:
+        print("args in mainhandler; {}".format(args))
         pre_processed_value = self.pre_processor(input_value)
-        output_value = self.inference(pre_processed_value)
+        output_value = self.inference(pre_processed_value, *args, **kwargs)
         post_processed_value = self.post_processor(output_value)
         return post_processed_value
         
