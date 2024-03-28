@@ -14,5 +14,6 @@ fsspec
 tritonclient[all]
 fastapi
 uvicorn
+gunicorn
 python-daemon
 git+https://github.com/openai/CLIP.git
