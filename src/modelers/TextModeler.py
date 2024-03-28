@@ -30,15 +30,18 @@ class TextModeler(BaseModeler):
         # set model.
         if self.tokenizer == None or self.pipe == None:
             self.load_model(model)
+            
+        inputs = self.tokenizer([prompt], return_tensors="pt", padding=True)
         # translate english text to korean.
         translated = self.pipe.generate(
-            **self.tokenizer(prompt, return_tensors="pt", padding=True),
+            **inputs,
             max_length=self.max_token_length,
             num_beams=self.num_beams,
             repetition_penalty=self.repetition_penalty,
             no_repeat_ngram_size=self.no_repeat_ngram_size,
             num_return_sequences=self.num_return_sequences,
         )
+        
         # logging.info("translated token: {}".format(translated))
         output_text = self.tokenizer.decode(translated[0], skip_special_tokens=True)
         logging.info("kor2eng Translator output text: {}".format(output_text))
