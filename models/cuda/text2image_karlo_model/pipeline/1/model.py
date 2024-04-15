@@ -26,9 +26,9 @@ class TritonPythonModel:
         self.no_repeat_ngram_size = 3
         self.num_return_sequences = 1
         # image generation parameters.
-        self.prior_num_inference_steps = 25
-        self.decoder_num_inference_steps = 10
-        self.super_res_num_inference_steps = 7
+        self.prior_num_inference_steps = 15 # 25
+        self.decoder_num_inference_steps = 15 # 25
+        self.super_res_num_inference_steps = 6 # 7
         
         print("init trtion server")
         start_time = time.time()
@@ -55,53 +55,65 @@ class TritonPythonModel:
     def execute(self, requests):
         responses = []
         print("start execution")
+        # for request in requests:
+        #   input_prompt = pb_utils.get_input_tensor_by_name(request, "prompt")
+        #   input_text = input_prompt.as_numpy()[0][0].decode('utf-8')
+        #   print("input_prmpot: {}".format(input_prompt.as_numpy()[0]))
+        input_text = []
+        print("The number of requests: {}".format(len(requests)))
         for request in requests:
             input_prompt = pb_utils.get_input_tensor_by_name(request, "prompt")
-            input_text = input_prompt.as_numpy()[0][0].decode('utf-8')
-            print("given input: {}".format(input_text))
-            t_start_time = time.time()
-            ## 1st. translation
-            # tokenizing
-            tokenized_text = self.tokenizer(
-                [input_text],
-                padding="max_length",
-                max_length=self.tokenizer.model_max_length,
-                truncation=True,
-                return_tensors="pt",
-            )
-            tokenized_text = tokenized_text.to("cuda")
-            # print("tokenized text: {}".format(tokenized_text))
-            # translate english text to korean.
-            translated = self.translator_model.generate(
-                **tokenized_text,
-                max_length=self.max_token_length,
-                num_beams=self.num_beams,
-                repetition_penalty=self.repetition_penalty,
-                no_repeat_ngram_size=self.no_repeat_ngram_size,
-                num_return_sequences=self.num_return_sequences,
-            )
-            t_end_time = time.time()
-            print('translation duration: {} seconds'.format(round(t_end_time-t_start_time,2)))
-            output_text = self.tokenizer.decode(translated[0], skip_special_tokens=True)
-            print("output_text: {}".format(output_text))
-            ## 2nd. text to image generation.
-            i_start_time = time.time()
-            deocded_image = self.image_model(output_text,
-                                            prior_num_inference_steps=self.prior_num_inference_steps,
-                                            decoder_num_inference_steps=self.decoder_num_inference_steps,
-                                            super_res_num_inference_steps=self.super_res_num_inference_steps,
-                                            ).images[0]
-            # return results
+            input_text.append(input_prompt.as_numpy()[0][0].decode('utf-8'))
+        # input_text = [pb_utils.get_input_tensor_by_name(request, "prompt").as_numpy()[0][0].decode('utf-8') for request in requests]
+        print("given input: {}".format(input_text))
+        t_start_time = time.time()
+        ## 1st. translation
+        # tokenizing
+        tokenized_text = self.tokenizer(
+            input_text,
+            padding="max_length",
+            max_length=self.tokenizer.model_max_length,
+            truncation=True,
+            return_tensors="pt",
+        )
+        tokenized_text = tokenized_text.to("cuda")
+        # print("tokenized text: {}".format(tokenized_text))
+        # translate english text to korean.
+        translated = self.translator_model.generate(
+            **tokenized_text,
+            max_length=self.max_token_length,
+            num_beams=self.num_beams,
+            repetition_penalty=self.repetition_penalty,
+            no_repeat_ngram_size=self.no_repeat_ngram_size,
+            num_return_sequences=self.num_return_sequences,
+        )
+        t_end_time = time.time()
+        print('translation duration: {} seconds'.format(round(t_end_time-t_start_time,2)))
+        # output_text = self.tokenizer.decode(translated[0], skip_special_tokens=True)
+        output_text = [self.tokenizer.decode(t, skip_special_tokens=True) for t in translated]
+        print("output_text: {}".format(output_text))
+        ## 2nd. text to image generation.
+        i_start_time = time.time()
+        decoded_image = self.image_model(output_text,
+                                        prior_num_inference_steps=self.prior_num_inference_steps,
+                                        decoder_num_inference_steps=self.decoder_num_inference_steps,
+                                        super_res_num_inference_steps=self.super_res_num_inference_steps,
+                                        ).images
+        # return results
+        print("images: {}".format(decoded_image))
+        for each_decoded_image in decoded_image:
+            print("each image: {}".format(each_decoded_image))
             inference_response = pb_utils.InferenceResponse(
                 output_tensors=[
                     pb_utils.Tensor(
                         "generated_image",
-                        np.array(deocded_image, dtype=self.output_dtype),
+                        np.array(each_decoded_image, dtype=self.output_dtype),
                     )
                 ]
             )
             i_end_time = time.time()
             print('image generation duration: {} seconds'.format(round(i_end_time-i_start_time,2)))
             responses.append(inference_response)
-            print("response: {}".format(responses))
+        print("response: {}".format(responses))
+        
         return responses
