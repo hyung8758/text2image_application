@@ -4,7 +4,7 @@ reference: https://github.com/Ki6an/fastT5/tree/master
 
 Hyungwon Yang
 """
-import torch
+
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from fastT5 import export_and_get_onnx_model, get_onnx_model
 
