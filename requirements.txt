@@ -6,6 +6,8 @@ einops
 omegaconf
 matplotlib
 gradio>=3.5.0
+onnx==1.14.1
+fastt5
 diffusers
 transformers
 accelerate
