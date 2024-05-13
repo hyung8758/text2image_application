@@ -5,7 +5,7 @@ Hyungwon Yang
 """
 
 import os, sys
-CURRENT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),"../..")
+CURRENT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..")
 sys.path.append(CURRENT_PATH)
 os.chdir(CURRENT_PATH)
 print("current: {}".format(CURRENT_PATH))
@@ -151,29 +151,27 @@ txt_feat, txt_feat_seq = clip_model.encode_text(tok)
 
 # get prior
 img_feat = prior_model(
-                txt_feat,
-                txt_feat_seq,
-                mask,
-                prior_cf_scales_batch,
+                txt_feat=txt_feat,
+                txt_feat_seq=txt_feat_seq,
+                mask=mask,
+                cf_guidance_scales=prior_cf_scales_batch,
                 timestep_respacing=prior_sm,
             )
-
 images_64_outputs = decoder_model(
-                txt_feat,
-                txt_feat_seq,
-                tok,
-                mask,
-                img_feat,
+                txt_feat=txt_feat,
+                txt_feat_seq=txt_feat_seq,
+                tok=tok,
+                mask=mask,
+                img_feat=img_feat,
                 cf_guidance_scales=decoder_cf_scales_batch,
                 timestep_respacing=decoder_sm,
             )
-
 
 images_64 = None
 for k, out in enumerate(images_64_outputs):
     print(k)
     images_64 = out
-
+# images_64 = torch.clamp(out * 0.5 + 0.5, 0.0, 1.0)
 images_64 = torch.clamp(images_64, -1, 1)
 
 """ Upsample 64x64 to 256x256 """
