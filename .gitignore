@@ -2,6 +2,10 @@ __pycache__/
 triton_client/
 model.onnx
 model.plan
+models/clip_models/
+models/karlo_models/
+models/quantized_translator_model/
+sr_external_data
 .pid/
 log/
 *.png
