@@ -69,12 +69,17 @@
     exit # exit the container and it will be automatically deleted.
 
     # 2. Start the Triton Server using Docker. If you want to keep the current container, omit the '--rm' option; otherwise, the container will be automatically removed when you exit.
-    docker run --gpus all -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cuda/text2image_model:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
+    docker run --gpus all -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cuda/text2image_karlo_model_onnx2:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
+    # if you would like to specify gpu devices then allocate the device numbers in --gpus options. (in case of 4 gpus, use only 1,2,3 except 0)
+    # docker run --gpus '"device=1,2,3"' -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cuda/text2image_karlo_model_onnx2:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
 
     # 3. Once the container is started, install the following libraries
     pip install torch torchvision torchaudio
-    pip install transformers ftfy scipy accelerate
-    pip install diffusers==0.9.0
+    pip install transformers==4.41.1
+    pip install ftfy scipy accelerate progress sentencepiece
+    pip install diffusers==0.27.2
+    pip install onnxruntime==1.14.1
+    pip install fastt5==0.1.4 --no-deps
     pip install transformers[onnxruntime]
 
     # 4. Activate the Triton Server.
@@ -102,7 +107,6 @@
     )
     """
     ```
-- Triton server
 
 ## List of Models
 - ASR
