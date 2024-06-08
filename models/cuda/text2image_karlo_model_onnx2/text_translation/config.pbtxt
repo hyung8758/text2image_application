@@ -1,0 +1,31 @@
+name: "text_translation"
+backend: "python"
+max_batch_size: 4
+input [
+    {
+        name: "input_prompt"
+        data_type: TYPE_STRING
+        dims: [ -1 ]
+    }
+]
+
+output [
+    {
+        name: "translated_prompt"
+        data_type: TYPE_STRING
+        dims: [ -1 ]
+    }
+]
+
+dynamic_batching {
+    preferred_batch_size: [ 4 ]
+    max_queue_delay_microseconds: 300000
+}
+
+instance_group [
+    {
+        count: 2
+        kind: KIND_GPU
+        gpus : [0]
+    }
+]
