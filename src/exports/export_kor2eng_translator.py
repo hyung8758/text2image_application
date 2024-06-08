@@ -19,10 +19,11 @@ tokenizer = AutoTokenizer.from_pretrained(translator_model_name)
 t_model = export_and_get_onnx_model(translator_model_name, onnx_save_path, quantized=quantized)
 
 # import onnx model.
-translator_model = get_onnx_model(translator_model_name, onnx_save_path, quantized=quantized)
+# translator_model = get_onnx_model(translator_model_name, onnx_save_path, quantized=quantized)
+translator_model = get_onnx_model(translator_model_name, quantized=quantized)
 
 # inference with onnx
-prompt = "안녕하세요."
+prompt = ["안녕하세요."]
 max_token_length = 64
 num_beams = 5
 repetition_penalty = 1.3
