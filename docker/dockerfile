@@ -1,0 +1,28 @@
+# text2image_karlo_model_onnx2 docker file.
+
+# base image: kaldiasr
+FROM nvcr.io/nvidia/tritonserver:22.12-py3
+LABEL maintainer "Hyungwon Yang <hyung8758@gmail.com>"
+
+# Set the working directory
+WORKDIR /workspace
+
+# update dependencies and install python3 and pip3.
+RUN pip install torch torchvision torchaudio \
+    && pip install transformers==4.41.1 \
+    && pip install ftfy scipy accelerate progress sentencepiece \
+    && pip install diffusers==0.27.2 \
+    && pip install onnxruntime-gpu==1.18.0 \
+    && pip install fastt5==0.1.4 --no-deps
+
+# Copy the contents of the current directory to /workspace in the container
+COPY . /workspace
+
+# Expose ports needed by Triton server
+EXPOSE 8000
+EXPOSE 8001
+EXPOSE 8002
+
+# Specify the entrypoint script (if you have one)
+# ENTRYPOINT ["tritonserver"]
+

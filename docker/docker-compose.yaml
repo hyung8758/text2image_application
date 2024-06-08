@@ -1,0 +1,27 @@
+# docker/docker-compose.yml
+
+version: '3.8'
+
+services:
+  tritonserver:
+    image: text2image_generator
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=1
+    shm_size: 2g
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - ../:/workspace
+      - ../models/cuda/text2image_karlo_model_onnx2:/models
+    command: tritonserver --model-repository=/models
