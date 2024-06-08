@@ -8,7 +8,7 @@ import os, sys
 CURRENT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..")
 sys.path.append(CURRENT_PATH)
 os.chdir(CURRENT_PATH)
-print("current: {}".format(CURRENT_PATH))
+# print("current: {}".format(CURRENT_PATH))
 import torch
 import numpy as np
 import torchvision.transforms.functional as TVF
@@ -169,7 +169,6 @@ images_64_outputs = decoder_model(
 
 images_64 = None
 for k, out in enumerate(images_64_outputs):
-    print(k)
     images_64 = out
 # images_64 = torch.clamp(out * 0.5 + 0.5, 0.0, 1.0)
 images_64 = torch.clamp(images_64, -1, 1)
@@ -186,7 +185,6 @@ images_256_outputs = sr_model(
 )
 
 for k, out in enumerate(images_256_outputs):
-    print(k)
     images_256 = out
 
 generated_image = torch.clamp(images_256 * 0.5 + 0.5, 0.0, 1.0)

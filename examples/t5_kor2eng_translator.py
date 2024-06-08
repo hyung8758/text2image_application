@@ -21,8 +21,8 @@ src_text = [
 ]
 inputs = tokenizer(src_text, return_tensors="pt", padding=True)
 
-inputs.to('cpu')
-model.to('cpu')
+# inputs.to('cuda:1')
+# model.to('cuda:1')
 start_time = time.time()
 translated = model.generate(
     **inputs,
