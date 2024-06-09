@@ -1,8 +1,8 @@
 """ instruction (gpu version)
 아래 명령어는 text2image_application/ 디렉토리를 기준으로 실행할 것. 
 
-1. triton 서버 docker로 실행. --rm 옵션은 container 작업 후 exit 할 때 자동 삭제하므로, container 유지하고자 할 경우 넣지 말 것.
-$ docker run -it --gpus '"device=1"' --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cuda/text2image_karlo_model:/models nvcr.io/nvidia/tritonserver:24.01-py3 bash
+1. Docker compose 활용하여 triton server 실행.
+$ cd 
 
 2. container 내부로 들어온 뒤 아래 라이브러리 설치 진행.
 $ pip install torch torchvision torchaudio
