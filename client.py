@@ -7,18 +7,20 @@ MediaZen
 """
 
 # restful clinet 
+import numpy as np
 import io
 import json
 import time
 import base64
 import argparse
-import http.client
 from PIL import Image
 from typing import Any
+import tritonclient.grpc as grpcclient
+from tritonclient.utils import np_to_triton_dtype
 
 class postRequestClient:
-    def __init__(self, server_addr: str="localhost", server_port: int=33010) -> None:
-        self.conn = http.client.HTTPConnection(server_addr, server_port)
+    def __init__(self, server_addr: str="localhost", server_port: int=8001) -> None:
+        self.conn = grpcclient.InferenceServerClient(url=f"{server_addr}:{server_port}")
     
     def save_image(self, encoded_image: str, save_path: str) -> None:
         # Decode base64 string to bytes
@@ -36,19 +38,23 @@ class postRequestClient:
     def __call__(self, json_data: json, *args: Any, **kwargs: Any) -> Any:
         try:
             print("config yaml: {}".format(json_data))
-            headers = {"Content-type": "application/json"}
-            self.conn.request("POST", "/text2image", body=json.dumps(json_data), headers=headers)
-            
-            # get a response
-            response = self.conn.getresponse()
-            json_result = json.loads(response.read().decode('utf-8'))
-            # print("json result: {}".format(json_result))
-            if json_result['success']:
-                encoded_image = json_result['image']
-                save_path = "result_image.jpg"
-                self.save_image(encoded_image, save_path)
+            prompt = json_data['input_text']
+            text_obj = np.array(prompt, dtype="object").reshape((-1, 1))
+            input_text = grpcclient.InferInput(
+                            "input_text", text_obj.shape, np_to_triton_dtype(text_obj.dtype)
+                        )
+            input_text.set_data_from_numpy(text_obj)
+            output_img = grpcclient.InferRequestedOutput("generated_image")
+            # print(f"output_img:{output_img}")
+            response = self.conn.infer(
+                            model_name="ensemble_model", inputs=[input_text], outputs=[output_img]
+                        )
+            resp_img = response.as_numpy("generated_image")
+            if json_data["save_image"]:
+                im = Image.fromarray(np.squeeze(resp_img.astype(np.uint8)))
+                im.save(json_data["save_name"])
         except Exception as e:
-            print("error: {}".format(e))
+            print("Error: {}".format(e))
         finally:
             self.conn.close()
             
@@ -61,7 +67,7 @@ if __name__ == "__main__":
                         help="client api server port.")
     parser.add_argument("--server_port",
                         type=int,
-                        default=33010,
+                        default=8001,
                         help="client api server port.")
     
     args = parser.parse_args()
