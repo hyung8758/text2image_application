@@ -1,22 +1,24 @@
 """ instruction (gpu version)
 아래 명령어는 text2image_application/ 디렉토리를 기준으로 실행할 것. 
 
-1. Docker compose 활용하여 triton server 실행.
-$ cd 
+1. triton 서버 docker로 실행. --rm 옵션은 container 작업 후 exit 할 때 자동 삭제하므로, container 유지하고자 할 경우 넣지 말 것.
+    docker run -it --gpus all --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v ${PWD}:/workspace/ -v ${PWD}/models/cuda/text2image_karlo_model_onnx2:/models nvcr.io/nvidia/tritonserver:22.12-py3 bash
 
 2. container 내부로 들어온 뒤 아래 라이브러리 설치 진행.
-$ pip install torch torchvision torchaudio
-$ pip install transformers ftfy scipy accelerate
-$ pip install diffusers
-$ pip install transformers[onnxruntime]
+    pip install torch torchvision torchaudio
+    pip install transformers==4.41.1
+    pip install ftfy scipy accelerate progress sentencepiece
+    pip install diffusers==0.27.2
+    pip install onnxruntime-gpu==1.18.0
+    pip install fastt5==0.1.4 --no-deps
 
 3. triton 서버 실행.
-$ export PYTHONIOENCODING=UTF-8
-$ tritonserver --model-repository=/models
+    export PYTHONIOENCODING=UTF-8
+    tritonserver --model-repository=/models
 
 4. 기존 triton 서버 terminal은 놔두고, terminal을 새롭게 열어 client 파일 실행.
-$ cd gradioApp
-$ python3 text2karloImageCpuClient.py
+    cd gradioApp
+    python3 gradio_client.py
 
 """
 import argparse
@@ -29,7 +31,6 @@ from tritonclient.utils import np_to_triton_dtype
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--triton_url", default="localhost:8001")
-# parser.add_argument("--iter", default=20, type=int)
 args = parser.parse_args()
 
 client = grpcclient.InferenceServerClient(url=f"{args.triton_url}")
