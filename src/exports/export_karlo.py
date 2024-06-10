@@ -1,6 +1,5 @@
 """
 export_karlo : download karlo model and export it to onnx.
-This code will be reorganized later.
 
 Hyungwon Yang
 """
@@ -226,3 +225,4 @@ if __name__ == "__main__":
     # Step 1. download karlo model.
     download_karlo_models()
     export_karlo_models(cuda_device=args.cuda_device)
+    print("DONE")
