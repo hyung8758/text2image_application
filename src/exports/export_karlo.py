@@ -52,11 +52,90 @@ CKPT_PATH = {
     "clip_stat" : "ViT-L-14_stats.th"
 }
 
+
+### 코드 재정리
+class CustomizedText2ImProgressiveModel(Text2ImProgressiveModel):
+    def forward(
+        self,
+        txt_feat,
+        txt_feat_seq,
+        tok,
+        mask,
+        img_feat=None,
+        cf_guidance_scales=None,
+        timestep_respacing=None,
+    ):
+        # cfg should be enabled in inference
+        assert cf_guidance_scales is not None and all(cf_guidance_scales > 0.0)
+        assert img_feat is not None
+
+        bsz = txt_feat.shape[0]
+        img_sz = self._model_conf.image_size
+
+        def guided_model_fn(x_t, ts, **kwargs):
+            half = x_t[: len(x_t) // 2]
+            combined = torch.cat([half, half], dim=0)
+            model_out = self.model(combined, ts, **kwargs)
+            eps, rest = model_out[:, :3], model_out[:, 3:]
+            cond_eps, uncond_eps = torch.split(eps, len(eps) // 2, dim=0)
+            half_eps = uncond_eps + cf_guidance_scales.view(-1, 1, 1, 1) * (
+                cond_eps - uncond_eps
+            )
+            eps = torch.cat([half_eps, half_eps], dim=0)
+            return torch.cat([eps, rest], dim=1)
+
+        cf_feat = self.model.cf_param.unsqueeze(0)
+        cf_feat = cf_feat.expand(bsz // 2, -1)
+        feat = torch.cat([img_feat, cf_feat.to(txt_feat.device)], dim=0)
+
+        cond = {
+            "y": feat,
+            "txt_feat": txt_feat,
+            "txt_feat_seq": txt_feat_seq,
+            "mask": mask,
+        }
+        sample_fn = self.get_sample_fn(timestep_respacing)
+        sample_outputs = sample_fn(
+            guided_model_fn,
+            (bsz, 3, img_sz, img_sz),
+            noise=None,
+            device=txt_feat.device,
+            clip_denoised=True,
+            model_kwargs=cond,
+        )
+
+        """hw fixed"""
+        images_64 = None
+        for out in sample_outputs:
+            sample = out["sample"]
+            images_64 = sample if cf_guidance_scales is None else sample[: sample.shape[0] // 2]
+        return torch.clamp(images_64, -1, 1)
+
+class CustomizedImprovedSupRes64to256ProgressiveModel(ImprovedSupRes64to256ProgressiveModel):
+    def forward(self, low_res, timestep_respacing="7", **kwargs):
+        assert (
+            timestep_respacing == "7"
+        ), "different respacing method may work, but no guaranteed"
+
+        sample_fn = self.get_sample_fn(timestep_respacing)
+        sample_outputs = sample_fn(
+            self.model_first_steps,
+            self.model_last_step,
+            shape=low_res.shape,
+            clip_denoised=True,
+            model_kwargs=dict(low_res=low_res),
+            **kwargs,
+        )
+        """hw fixed"""
+        images_256 = None
+        for x in sample_outputs:
+            images_256 = x["sample"]
+        return torch.clamp(images_256 * 0.5 + 0.5, 0.0, 1.0)
+###
+
 def download_karlo_models(save_path: str = "./models/karlo_models") -> None:
     for each_file_name in MODEL_PATH.keys():
         save_file_nmae = os.path.join(save_path, each_file_name)
-        if os.path.exists(save_file_nmae):
-            continue
         print("Downloading {}".format(each_file_name))
         with requests.get(MODEL_PATH[each_file_name], stream=True) as r:
             r.raise_for_status()  # Check for HTTP errors
@@ -134,7 +213,7 @@ def export_karlo_models(save_path: str = "./models/karlo_models", cuda_device:in
     with torch.autocast("cuda", dtype=torch.float16):
         # load decoder model.
         decoder_config =OmegaConf.load(os.path.join(save_path, "decoder_900M_vit_l.yaml"))
-        decoder_model = Text2ImProgressiveModel.load_from_checkpoint(
+        decoder_model = CustomizedText2ImProgressiveModel.load_from_checkpoint(
             decoder_config,
             tokenizer_model,
             os.path.join(save_path, CKPT_PATH['decoder']),
@@ -177,7 +256,7 @@ def export_karlo_models(save_path: str = "./models/karlo_models", cuda_device:in
     with torch.autocast("cuda", dtype=torch.float16):
         # load super resolution model.
         sr_config = OmegaConf.load(os.path.join(save_path, "improved_sr_64_256_1.4B.yaml"))
-        sr_model = ImprovedSupRes64to256ProgressiveModel.load_from_checkpoint(
+        sr_model = CustomizedImprovedSupRes64to256ProgressiveModel.load_from_checkpoint(
             sr_config, 
             os.path.join(save_path, CKPT_PATH['sr_256']), strict=True
         )
