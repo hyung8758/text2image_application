@@ -1,4 +1,4 @@
-# text2image_application
+# text2image_triton_application
 - Integration of text-to-image and translation models.
 - Mostly referenced from [triton server tutorial](https://github.com/triton-inference-server/tutorials/tree/main/Conceptual_Guide/Part_6-building_complex_pipelines).
 
@@ -14,8 +14,8 @@
 - Install dependencies
     ```bash
     # [recommanded] Establish your own virtual environment.
-    conda create -n triton_server python=3.10
-    conda activate triton_server
+    conda create -n text2image_server python=3.10
+    conda activate text2image_server
     # 1. Install the required dependencies.
     python install_packages.py
     ```
@@ -25,8 +25,9 @@
     # Ensure that your current directory is 'text2image_application/' and execute the following commands.
 
     # 1. Export and convert the models.
-    python src/export_karlo.py # optional
-    python src/export_kor2eng_translator.py
+    git submodule update --init --recursive
+    python src/exports/export_kor2eng_translator.py
+    # python src/exports/export_karlo.py # optional
 
     # 2. Start the Triton Server using Docker. 
     # Adjust parameters to match your environment
