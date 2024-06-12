@@ -7,7 +7,7 @@ services:
     image: text2image_generator
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/dockerfile
     runtime: nvidia
     deploy:
       resources:
@@ -15,7 +15,7 @@ services:
           devices:
             - capabilities: [gpu]
     environment:
-      - NVIDIA_VISIBLE_DEVICES=1
+      - NVIDIA_VISIBLE_DEVICES=0
     shm_size: 2g
     ports:
       - "8000:8000"
