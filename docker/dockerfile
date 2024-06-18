@@ -8,12 +8,14 @@ LABEL maintainer "Hyungwon Yang <hyung8758@gmail.com>"
 WORKDIR /workspace
 
 # install and update dependencies.
-RUN pip install torch torchvision torchaudio \
-    && pip install transformers==4.41.1 \
-    && pip install ftfy scipy accelerate progress sentencepiece \
-    && pip install diffusers==0.27.2 \
-    && pip install onnxruntime-gpu==1.18.0 \
-    && pip install fastt5==0.1.4 --no-deps
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    transformers==4.41.1 \
+    ftfy scipy accelerate progress sentencepiece \
+    diffusers==0.27.2 \
+    onnxruntime-gpu==1.18.0 \
+    fastt5==0.1.4 --no-deps && \
+    rm -rf /root/.cache/pip
 
 # Copy the contents of the current directory to /workspace in the container
 COPY . /workspace
